@@ -1,0 +1,61 @@
+[project]
+name = "datafool"
+version = "0.1.0"
+description = "Backend API for the DataFool application."
+authors = [{ name = "Your Name", email = "your@email.com" }]
+readme = "README.md"
+requires-python = ">=3.12"
+license = { text = "MIT" }
+
+dependencies = [
+    "fastapi",
+    "uvicorn[standard]",
+    "sqlalchemy[asyncio]",
+    "asyncpg",
+    "python-dotenv",
+]
+
+[dependency-groups]
+dev = [
+    "mypy>=1.16.1",
+    "poethepoet>=0.36.0",
+    "pytest>=8.4.1",
+    "pytest-asyncio>=1.0.0",
+    "pytest-cov>=6.2.1",
+    "pytest-mock>=3.14.1",
+    "ruff>=0.12.2",
+]
+
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
+addopts = [
+    '-v',
+    "--cov=datafool",
+    "--cov-report=term-missing",
+    "--cov-report=html",
+]
+
+[tool.ruff]
+line-length = 88
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "W", "C90", "B"]
+
+[tool.poe.tasks]
+test = "pytest"
+lint = "ruff check src tests"
+format = "ruff format src tests"
+types = "mypy src"
+check = ["lint", "types"]
+
+[tool.uv]
+# This section can be used for uv-specific configurations in the future
