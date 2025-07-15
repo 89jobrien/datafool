@@ -6,7 +6,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from ..core.config import settings
 
 
-# --- Abstract Base Class for LLMs ---
 class LLM_Base(ABC):
     @abstractmethod
     def generate_sql(self, prompt: str) -> str:
@@ -14,7 +13,6 @@ class LLM_Base(ABC):
         pass
 
 
-# --- Hugging Face Implementation ---
 class HuggingFace_LLM(LLM_Base):
     def __init__(self, model_name: str):
         from transformers import pipeline
@@ -30,7 +28,6 @@ class HuggingFace_LLM(LLM_Base):
             raise ValueError("Unexpected result format from the model.")
 
 
-# --- Ollama Implementation ---
 class Ollama_LLM(LLM_Base):
     def __init__(self, host: str, model_name: str):
         import ollama
@@ -47,7 +44,6 @@ class Ollama_LLM(LLM_Base):
         return response["message"]["content"]
 
 
-# --- Azure OpenAI Implementation ---
 class Azure_OpenAI_LLM(LLM_Base):
     def __init__(self, api_key: str, endpoint: str, version: str, deployment: str):
         from openai import AzureOpenAI
@@ -93,16 +89,12 @@ def get_llm() -> LLM_Base:
 llm_instance = get_llm()
 
 
-# --- Prompt and DDL Functions (remain mostly the same) ---
 def construct_prompt(question: str, ddl_list: list) -> str:
     """Constructs a detailed prompt for the LLM to generate SQL."""
     prompt = "### Instructions:\n"
     prompt += "Your task is to convert a question into a single, executable SQL query for a PostgreSQL database.\n"
     prompt += "Adhere to these rules:\n"
-
-    # --- THIS IS THE NEW RULE ---
     prompt += '- **CRITICAL RULE: You MUST wrap all table and column names in double quotes** (e.g., `SELECT "my_column" FROM "my_table"`). This is essential for case-sensitivity.\n'
-
     prompt += "- **Only respond with the SQL query.** Do not add any explanation, commentary, or markdown.\n\n"
     prompt += "### Input:\n"
     prompt += f'The user\'s question is: "{question}"\n\n'
@@ -115,7 +107,6 @@ def construct_prompt(question: str, ddl_list: list) -> str:
 
 async def get_table_ddl(table_name: str, db: AsyncSession) -> str:
     """Retrieves the CREATE TABLE statement for a given table."""
-    # This simplified query works for PostgreSQL.
     query = f"""
     SELECT 'CREATE TABLE \"' || table_name || '\" (' ||
            string_agg(column_name || ' ' || data_type, ', ') ||
