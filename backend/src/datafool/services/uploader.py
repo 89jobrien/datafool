@@ -1,5 +1,3 @@
-# backend/src/datafool/services/uploader.py
-
 import io
 
 import pandas as pd
@@ -27,16 +25,12 @@ def _sanitize_dataframe(df: pd.DataFrame) -> pd.DataFrame:
     and converting them to the correct data type.
     """
     for col in df.columns:
-        # Check if a column is of object type (likely strings)
         if df[col].dtype == "object":
             try:
-                # Attempt to strip commas and convert to numeric.
-                # We skip if all values are null after stripping.
                 sanitized_col = df[col].str.replace(",", "", regex=False)
                 if not sanitized_col.isnull().all():
                     df[col] = pd.to_numeric(sanitized_col)
             except (ValueError, AttributeError):
-                # This column is not numeric-like, so we leave it as is.
                 pass
     return df
 
@@ -57,8 +51,6 @@ async def read_file_to_dataframe(file: UploadFile) -> pd.DataFrame:
         df = pd.read_excel(file_io)
     else:
         raise ValueError("Unsupported file format.")
-
-    # Sanitize the dataframe after reading
     return _sanitize_dataframe(df)
 
 
