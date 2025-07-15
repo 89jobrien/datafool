@@ -1,5 +1,3 @@
-# backend/src/datafool/models/schemas.py
-
 from typing import Any, Dict, List
 
 from pydantic import BaseModel
