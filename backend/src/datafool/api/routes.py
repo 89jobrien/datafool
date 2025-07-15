@@ -36,17 +36,14 @@ async def handle_query_route(request: QueryRequest, db: AsyncSession = Depends(g
         ddl = await get_table_ddl(request.table_name, db)
         prompt = construct_prompt(question=request.question, ddl_list=[ddl])
         generated_sql = llm_instance.generate_sql(prompt)
-
         result = await db.execute(text(generated_sql))
         rows = result.fetchall()
         columns = result.keys()
         data = [dict(zip(columns, row)) for row in rows]
-
         return QueryResponse(
             query_generated=generated_sql, data=data, ran_successfully=True
         )
     except Exception as e:
         import traceback
-
         traceback.print_exc()
         raise HTTPException(status_code=500, detail=str(e))
